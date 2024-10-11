@@ -21,7 +21,11 @@ const Navbar: React.FC = () => {
         <li>
           <NavLink
             to="/requests"
-            className="font-bold hover:text-gray-200"
+            className={({ isActive }) =>
+              isActive
+                ? "font-bold bg-white text-red-900 px-3 py-2 rounded"
+                : "font-bold hover:text-gray-200"
+            }
           >
             Requests
           </NavLink>
@@ -29,7 +33,11 @@ const Navbar: React.FC = () => {
         <li>
           <NavLink
             to="/feedbacks"
-            className="font-bold hover:text-gray-200"
+            className={({ isActive }) =>
+              isActive
+                ? "font-bold bg-white text-red-900 px-3 py-2 rounded"
+                : "font-bold hover:text-gray-200"
+            }
           >
             Feedbacks
           </NavLink>
@@ -37,7 +45,11 @@ const Navbar: React.FC = () => {
         <li>
           <NavLink
             to="/reports"
-            className="font-bold hover:text-gray-200"
+            className={({ isActive }) =>
+              isActive
+                ? "font-bold bg-white text-red-900 px-3 py-2 rounded"
+                : "font-bold hover:text-gray-200"
+            }
           >
             Reports
           </NavLink>
@@ -45,18 +57,26 @@ const Navbar: React.FC = () => {
         <li>
           <NavLink
             to="/patients"
-            className="font-bold hover:text-gray-200"
+            className={({ isActive }) =>
+              isActive
+                ? "font-bold bg-white text-red-900 px-3 py-2 rounded"
+                : "font-bold hover:text-gray-200"
+            }
           >
             Patients
           </NavLink>
         </li>
         <li className="relative group">
-          <button  className="font-bold hover:text-gray-200">Settings</button>
+          <button className="font-bold hover:text-gray-200">Settings</button>
           <ul className="absolute hidden group-hover:block bg-white text-black mt-2 py-2 rounded-md shadow-lg">
             <li>
               <NavLink
                 to="/settings/profile"
-                className="block px-4 py-2 hover:bg-gray-200"
+                className={({ isActive }) =>
+                  isActive
+                    ? "block px-4 py-2 bg-gray-200"
+                    : "block px-4 py-2 hover:bg-gray-200"
+                }
               >
                 Profile
               </NavLink>
@@ -64,7 +84,11 @@ const Navbar: React.FC = () => {
             <li>
               <NavLink
                 to="/settings/account"
-                className="block px-4 py-2 hover:bg-gray-200"
+                className={({ isActive }) =>
+                  isActive
+                    ? "block px-4 py-2 bg-gray-200"
+                    : "block px-4 py-2 hover:bg-gray-200"
+                }
               >
                 Account
               </NavLink>

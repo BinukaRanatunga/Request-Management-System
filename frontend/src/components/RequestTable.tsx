@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 interface Request {
-  id: string;
+  _id: string;
+  requestId: string;
   createdOn: string;
   location: string;
   service: string;
@@ -12,57 +14,54 @@ interface Request {
   assignedTo: string;
 }
 
-const initialRequests: Request[] = [
-  {
-    id: '1',
-    createdOn: '2024-10-01',
-    location: 'Location A',
-    service: 'Service 1',
-    status: 'New',
-    priority: 'High',
-    department: 'Department A',
-    requestedBy: 'User A',
-    assignedTo: 'User B',
-  },
-  {
-    id: '2',
-    createdOn: '2024-10-02',
-    location: 'Location B',
-    service: 'Service 2',
-    status: 'In Progress',
-    priority: 'Medium',
-    department: 'Department B',
-    requestedBy: 'User C',
-    assignedTo: 'User D',
-  },
-  // Add more initial requests as needed
-];
-
 const RequestTable: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [departmentFilter, setDepartmentFilter] = useState<string>('All');
-  const [requests, setRequests] = useState<Request[]>(initialRequests);
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch data from backend API on component mount
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/requests');
+        setRequests(response.data);
+        setLoading(false);
+      } catch (err: any) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchRequests();
+  }, []);
 
   // Function to filter requests based on status and department
   const filteredRequests = requests.filter((request) => {
-    const statusMatch =
-      statusFilter === 'All' || request.status === statusFilter;
-    const departmentMatch =
-      departmentFilter === 'All' || request.department === departmentFilter;
+    const statusMatch = statusFilter === 'All' || request.status === statusFilter;
+    const departmentMatch = departmentFilter === 'All' || request.department === departmentFilter;
     return statusMatch && departmentMatch;
   });
 
   // Function to handle the Edit button click
   const handleEdit = (id: string) => {
     console.log('Edit request with ID:', id);
-    // You can implement an edit modal or form here
+    // Implement edit logic
   };
 
   // Function to handle the Delete button click
-  const handleDelete = (id: string) => {
-    const updatedRequests = requests.filter((request) => request.id !== id);
-    setRequests(updatedRequests);
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/requests/${id}`); // Adjust with your backend API DELETE method
+      setRequests(requests.filter((request) => request._id !== id));
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="p-4">
@@ -87,10 +86,9 @@ const RequestTable: React.FC = () => {
             className="border rounded-md p-2"
           >
             <option value="All">All Departments</option>
-            <option value="Department A">Department A</option>
-            <option value="Department B">Department B</option>
-            <option value="Department C">Department C</option>
-            {/* Add more departments as needed */}
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
           </select>
         </div>
       </div>
@@ -113,9 +111,9 @@ const RequestTable: React.FC = () => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {filteredRequests.map((request) => (
-            <tr key={request.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.id}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.createdOn}</td>
+            <tr key={request._id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.requestId}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(request.createdOn).toLocaleDateString()}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.location}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.service}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{request.status}</td>
@@ -126,13 +124,13 @@ const RequestTable: React.FC = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 flex space-x-2">
                 <button
                   className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700"
-                  onClick={() => handleEdit(request.id)}
+                  onClick={() => handleEdit(request._id)}
                 >
                   Edit
                 </button>
                 <button
                   className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
-                  onClick={() => handleDelete(request.id)}
+                  onClick={() => handleDelete(request._id)}
                 >
                   Delete
                 </button>
