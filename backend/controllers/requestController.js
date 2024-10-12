@@ -10,6 +10,21 @@ const getRequests = async (req, res) => {
   }
 };
 
+// GET a specific request by ID
+const getRequestById = async (req, res) => {
+  try {
+    const request = await Request.findById(req.params.id);
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+    res.status(200).json(request);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 // POST a new request
 const addRequest = async (req, res) => {
   try {
@@ -45,5 +60,6 @@ module.exports = {
   getRequests,
   addRequest,
   updateRequest,
-  deleteRequest
+  deleteRequest,
+  getRequestById, // Ensure this is exported
 };

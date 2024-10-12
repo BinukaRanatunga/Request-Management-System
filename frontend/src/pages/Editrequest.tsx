@@ -22,17 +22,24 @@ const EditRequestForm: React.FC = () => {
 
   const navigate = useNavigate();
 
-//   useEffect(() => {
-//     console.log("Request ID:", id); // Check if the ID is correctly fetched from the URL
-//   }, [id]);
+  useEffect(() => {
+    console.log("Request ID:", id); // Check if the ID is correctly fetched from the URL
+  }, [id]);
 
   // Fetch existing request data based on ID when component mounts
   useEffect(() => {
     const fetchRequestData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/${id}`);
+        const response = await axios.get(`http://localhost:5000/api/requests/${id}`);
         console.log('Response:', response.data);
-        setFormData(response.data);
+
+        // Format the createdOn date to YYYY-MM-DD
+        const formattedData = {
+          ...response.data,
+          createdOn: new Date(response.data.createdOn).toISOString().slice(0, 10), // Extract YYYY-MM-DD
+        };
+
+        setFormData(formattedData);
       } catch (error) {
         setErrorMessage('Error fetching the request data');
         console.error('Error:', error);
@@ -42,24 +49,43 @@ const EditRequestForm: React.FC = () => {
     fetchRequestData();
   }, [id]);
 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
+
+    // If the input is for the createdOn field, we ensure it remains in the correct format
+    if (name === "createdOn") {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: value, // value is already in YYYY-MM-DD format from the input
+      }));
+    } else {
+      setFormData((prevState) => ({ ...prevState, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Convert the date to 'YYYY.MM.DD' format before sending to backend
+    const formattedDate = formData.createdOn.replace(/-/g, '.');
+
     try {
-      const response = await axios.patch(`http://localhost:5000/api/requests/${id}`, formData);
+      const response = await axios.patch(`http://localhost:5000/api/requests/${id}`, {
+        ...formData,
+        createdOn: formattedDate, // Convert 'createdOn' to 'YYYY.MM.DD' format
+      });
       console.log('Response:', response.data);
       setSuccessMessage('Request updated successfully!');
-      // Optionally, navigate back to the request list after successful edit
-      setTimeout(() => navigate('/'), 2000);
+
+      // Optionally navigate back to the request list after successful edit
+      setTimeout(() => navigate('/requests'), 400);
     } catch (error) {
       console.error('Error updating the request:', error);
       setErrorMessage('Failed to update the request.');
     }
   };
+
 
   const handleReset = () => {
     setFormData({
