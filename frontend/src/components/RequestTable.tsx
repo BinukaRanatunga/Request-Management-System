@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 interface Request {
   _id: string;
@@ -20,6 +21,8 @@ const RequestTable: React.FC = () => {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // Fetch data from backend API on component mount
   useEffect(() => {
@@ -46,8 +49,7 @@ const RequestTable: React.FC = () => {
 
   // Function to handle the Edit button click
   const handleEdit = (id: string) => {
-    console.log('Edit request with ID:', id);
-    // Implement edit logic
+    navigate(`/edit/${id}`); // Navigate to the edit page with the request ID
   };
 
   // Function to handle the Delete button click
@@ -75,7 +77,7 @@ const RequestTable: React.FC = () => {
           >
             <option value="All">All Status</option>
             <option value="New">New</option>
-            <option value="In Progress">In Progress</option>
+            <option value="IN_PROGRESS">In Progress</option>
             <option value="Escalated">Escalated</option>
             <option value="On Hold">On Hold</option>
           </select>
